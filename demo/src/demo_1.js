@@ -49,18 +49,18 @@ export default function App() {
 
   //多节点
   // 1.属性变化
-  const a = (
-    <>
-      <p key="0" name='0'>0</p>
-      <p key="1">1</p>
-    </>
-  );
-  const b = (
-    <>
-      <p key="0" name='00'>0</p>
-      <p key="1">1</p>
-    </>
-  );
+  // const a = (
+  //   <>
+  //     <p key="0" name='0'>0</p>
+  //     <p key="1">1</p>
+  //   </>
+  // );
+  // const b = (
+  //   <>
+  //     <p key="0" name='00'>0</p>
+  //     <p key="1">1</p>
+  //   </>
+  // );
 
   // 2.type变化
   // const a = (
@@ -119,6 +119,24 @@ export default function App() {
   //     <p key="0">0</p>
   //   </>
   // );
+
+  //6.more
+  const a = (
+    <>
+      <p key="0">0</p>
+      <p key="1">1</p>
+      <p key="2">2</p>
+      <p key="3">3</p>
+    </>
+  );
+  const b = (
+    <>
+      <p key="0">0</p>
+      <p key="2">2</p>
+      <p key="3">3</p>
+      <p key="1">1</p>
+    </>
+  );
 
   return (
     <div

@@ -695,7 +695,7 @@ function ChildReconciler(shouldTrackSideEffects) {
       );
       // 不可复用有两种情况：
       // 不可复用情况1：
-      // newFiber === null意味着上面的oldFiber的key与newChildren[newIdx]的key不同
+      // newFiber === null意味着上面的 ldFiber的key与newChildren[newIdx]的key不同
       // 会跳出循环
       if (newFiber === null) {
         // TODO: This breaks on empty slots like null children. That's
@@ -709,6 +709,7 @@ function ChildReconciler(shouldTrackSideEffects) {
       }
       if (shouldTrackSideEffects) {
         // 不可复用情况2：key相同但type不同，将oldFiber打上DELETION，然后继续遍历
+        // 这里newFiber.alternate什么时候会是null ===》 key相同，type不同，此时fiber是新建出来的。
         if (oldFiber && newFiber.alternate === null) {
           // We matched the slot, but we didn't reuse the existing fiber, so we
           // need to delete the existing child.
