@@ -520,6 +520,7 @@ function completeWork(
       // 获取根节点，如div#root
       const rootContainerInstance = getRootHostContainer();
       const type = workInProgress.type;
+      // stateNode挂载的是真实dom节点，mount的时候还未挂载
       if (current !== null && workInProgress.stateNode != null) {
         // 上面条件满足即意味着是update阶段
         updateHostComponent(

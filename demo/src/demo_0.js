@@ -10,8 +10,9 @@ export default function App() {
           setCount(() => count + 1);
         }}
       >
-        <p title={count}>{count}</p> xiaochen
+        <p title={count}>{count}</p> can do?
       </h1>
     </>
   );
 }
+ 

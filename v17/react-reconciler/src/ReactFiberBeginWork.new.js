@@ -2608,6 +2608,7 @@ export function beginWork(
       }
     }
   } else {
+    // fiber节点不存在current，mount阶段，不需要更新
     didReceiveUpdate = false;
   }
 

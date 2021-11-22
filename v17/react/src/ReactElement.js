@@ -13,6 +13,9 @@ import ReactCurrentOwner from './ReactCurrentOwner';
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
+/**
+ * 保留属性
+ */
 const RESERVED_PROPS = {
   key: true,
   ref: true,
@@ -53,6 +56,7 @@ function defineRefPropWarningGetter(props, displayName) {
 
 
 /**
+ * 返回jsx对象，
  * Factory method to create a new React element. This no longer adheres to
  * the class pattern, so do not use new to call it. Also, instanceof check
  * will not work. Instead test $$typeof field against Symbol.for('react.element') to check
@@ -201,7 +205,7 @@ export function createElement(type, config, children) {
 
   // Children can be more than one argument, and those are transferred onto
   // the newly allocated props object.
-  const childrenLength = arguments.length - 2;
+  const childrenLength = arguments.length - 2;  //子节点的长度
   if (childrenLength === 1) {
     props.children = children;
   } else if (childrenLength > 1) {

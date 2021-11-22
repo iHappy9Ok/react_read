@@ -387,6 +387,9 @@ export function setInitialProperties(
 }
 
 // Calculate the diff between the two objects.
+/**
+ * 比较新旧props
+ */
 export function diffProperties(
   domElement: Element,
   tag: string,
@@ -443,6 +446,7 @@ export function diffProperties(
   let styleUpdates = null;
   for (propKey in lastProps) {
     // 循环lastProps，找出需要标记删除的propKey
+    // 这个for循环不对新增的进行判断
     if (
       nextProps.hasOwnProperty(propKey) ||
       !lastProps.hasOwnProperty(propKey) ||
@@ -490,6 +494,7 @@ export function diffProperties(
       (updatePayload = updatePayload || []).push(propKey, null);
     }
   }
+  // 这个for循环处理新增、修改的props
   for (propKey in nextProps) {
     // 将新prop添加到updatePayload
     const nextProp = nextProps[propKey];

@@ -391,9 +391,8 @@ export function resetWorkInProgress(workInProgress: Fiber, renderLanes: Lanes) {
 }
 
 /**
- * var LegacyRoot = 0;
-var BlockingRoot = 1;
-var ConcurrentRoot = 2;
+ * 根据mode创建rootFiber
+ * var LegacyRoot = 0;var BlockingRoot = 1;var ConcurrentRoot = 2;、
  */
 export function createHostRootFiber(tag: RootTag): Fiber {
   

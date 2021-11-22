@@ -168,6 +168,10 @@ function resolveLazyType<T, P>(
 // to be able to optimize each path individually by branching early. This needs
 // a compiler or we can do it manually. Helpers that don't need this branching
 // live outside of this function.
+/**
+ * mount阶段和update阶段入参（shouldTrackSideEffects）不同，
+ * 这个入参表示是否需要追踪副作用。
+ */
 function ChildReconciler(shouldTrackSideEffects) {
   function deleteChild(returnFiber: Fiber, childToDelete: Fiber): void {
     if (!shouldTrackSideEffects) {
@@ -182,7 +186,9 @@ function ChildReconciler(shouldTrackSideEffects) {
       deletions.push(childToDelete);
     }
   }
-
+ /**
+  * 这个函数不仅能标记child，sibling也可以？
+  */
   function deleteRemainingChildren(
     returnFiber: Fiber,
     currentFirstChild: Fiber | null,
@@ -626,6 +632,9 @@ function ChildReconciler(shouldTrackSideEffects) {
   function reconcileChildrenArray(
     returnFiber: Fiber,
     currentFirstChild: Fiber | null,
+    /**
+     * 多节点数组
+     */
     newChildren: Array<*>,
     lanes: Lanes,
   ): Fiber | null {
@@ -651,12 +660,21 @@ function ChildReconciler(shouldTrackSideEffects) {
     enableLog && console.log('reconcileChildrenArray start')
     if (!__LOG_NAMES__.length || __LOG_NAMES__.includes('reconcileChildrenArray')) debugger
 
+    /**
+     * 对比结果的第一个子节点
+     */
     let resultingFirstChild: Fiber | null = null;
+    /**
+     * 在入参newChildren中，前一个对比过的节点
+     */
     let previousNewFiber: Fiber | null = null;
 
     let oldFiber = currentFirstChild;
     // 最后一个可复用的节点在oldFiber中的位置索引
     let lastPlacedIndex = 0;
+    /**
+     * 入参newChildren遍历到了哪个位置
+     */
     let newIdx = 0;
     let nextOldFiber = null;
     // mount的时候这里的oldFiber肯定是null，这里的循环不会进入
@@ -958,8 +976,14 @@ function ChildReconciler(shouldTrackSideEffects) {
   }
   // 单节点diff
   function reconcileSingleElement(
-    returnFiber: Fiber,
-    currentFirstChild: Fiber | null,
+    /**
+     * 父节点
+     */
+    returnFiber: Fiber,  
+    /**
+     * 当前节点的第一个子节点
+     */
+    currentFirstChild: Fiber | null,   
     element: ReactElement,
     lanes: Lanes,
   ): Fiber {
@@ -967,12 +991,13 @@ function ChildReconciler(shouldTrackSideEffects) {
     enableLog && console.log('reconcileSingleElement start')
   if (!__LOG_NAMES__.length || __LOG_NAMES__.includes('reconcileSingleElement')) debugger
 
-    const key = element.key;
-    let child = currentFirstChild;
+    const key = element.key;  // new key
+    let child = currentFirstChild;   //  old key
     while (child !== null) {
       // TODO: If key === null and child.key === null, then this only applies to
       // the first item in the list.
       if (child.key === key) {
+        // 当key相同
         switch (child.tag) {
           case Fragment: {
             if (element.type === REACT_FRAGMENT_TYPE) {
@@ -1010,8 +1035,9 @@ function ChildReconciler(shouldTrackSideEffects) {
           // eslint-disable-next-lined no-fallthrough
           default: {
             if (child.elementType === element.type) {
+              // 走到这里，key和type都相同
               // type相同则表示可以复用
-              // 先删除剩下的oldFiber节点
+              // 先删除剩下的oldFiber节点，为什么要删除
               deleteRemainingChildren(returnFiber, child.sibling);
               // 基于oldFiber节点和新节点的props新建新的fiber节点
               const existing = useFiber(child, element.props);
@@ -1030,7 +1056,7 @@ function ChildReconciler(shouldTrackSideEffects) {
         break;
       } else {
         // 没匹配到说明新的fiber节点无法从oldFiber节点新建
-        // 删除掉所有child节点
+        // key不同，删除掉所有child节点
         deleteChild(returnFiber, child);
       }
       child = child.sibling;
@@ -1094,6 +1120,9 @@ function ChildReconciler(shouldTrackSideEffects) {
   // This API will tag the children with the side-effect of the reconciliation
   // itself. They will be added to the side-effect list as we pass through the
   // children and the parent.
+  /**
+   * 为当前fiber创建子节点
+   */
   function reconcileChildFibers(
     returnFiber: Fiber,
     currentFirstChild: Fiber | null,
@@ -1230,6 +1259,7 @@ function ChildReconciler(shouldTrackSideEffects) {
 
   return reconcileChildFibers;
 }
+
 
 export const reconcileChildFibers = ChildReconciler(true);
 export const mountChildFibers = ChildReconciler(false);
