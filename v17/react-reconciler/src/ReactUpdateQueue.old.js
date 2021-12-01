@@ -180,6 +180,10 @@ export function createUpdate(eventTime: number, lane: Lane): Update<*> {
   return update;
 }
 
+/**
+ * enqueueUpdate用来将update加入updateQueue队列
+ * queue的pending会指向新加入的update，
+ */
 export function enqueueUpdate<State>(fiber: Fiber, update: Update<State>) {
   const updateQueue = fiber.updateQueue;
   if (updateQueue === null) {

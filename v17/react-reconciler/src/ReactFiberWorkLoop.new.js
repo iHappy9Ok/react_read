@@ -1699,7 +1699,7 @@ function completeUnitOfWork(unitOfWork: Fiber): void {
   }
   enableLog && console.log('completeUnitOfWork end')
 }
-/** commit阶段的起点 */  
+/** commit阶段的起点 */   
 function commitRoot(root) {
   
   enableLog && console.log('commitRoot start')
@@ -1708,7 +1708,7 @@ function commitRoot(root) {
   const renderPriorityLevel = getCurrentPriorityLevel();
   // commit阶段是同步执行的，优先级最高
   runWithPriority(
-    ImmediateSchedulerPriority,
+    ImmediateSchedulerPriority,  // 立刻执行优先级
     commitRootImpl.bind(null, root, renderPriorityLevel),
   );
   enableLog && console.log('commitRoot end')
@@ -1733,6 +1733,7 @@ function commitRootImpl(root, renderPriorityLevel) {
      // 触发useEffect回调与其他同步任务。
     //  由于这些任务可能触发新的渲染，所以这里要一直遍历执行直到没有任务
     flushPassiveEffects();
+    // rootWithPendingPassiveEffects 表示有未执行完的useEffect任务，需要在这个dowhile中把它执行完
   } while (rootWithPendingPassiveEffects !== null);
 
   invariant(

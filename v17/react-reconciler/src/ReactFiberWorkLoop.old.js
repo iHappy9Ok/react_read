@@ -1954,11 +1954,17 @@ function commitRootImpl(root, renderPriorityLevel) {
 
   // Get the list of effects.
   let firstEffect;
+  /**
+   * mount时，根节点一定有副作用,rootfiber 与下一个子节点形成环状链表
+   * rootfiber.lastEffect.nextEffect = rootfiber
+   */
   if (finishedWork.flags > PerformedWork) {
     // A fiber's effect list consists only of its children, not itself. So if
     // the root has an effect, we need to add it to the end of the list. The
     // resulting list is the set that would belong to the root's parent, if it
     // had one; that is, all the effects in the tree including the root.
+
+    //rootFiber.firstEffect.nextEffect就可以访问带effectTag的Fiber了
     if (finishedWork.lastEffect !== null) {
       finishedWork.lastEffect.nextEffect = finishedWork;
       firstEffect = finishedWork.firstEffect;
@@ -1993,7 +1999,10 @@ function commitRootImpl(root, renderPriorityLevel) {
     focusedInstanceHandle = prepareForCommit(root.containerInfo);
     shouldFireAfterActiveInstanceBlur = false;
 
+    // 初始化nextEffect为effectlist的第一个
     nextEffect = firstEffect;
+
+    // 第一个dowhile遍历effectlist链表，执行commitBeforeMutationEffects函数
     do {
 
       try {
@@ -2017,6 +2026,8 @@ function commitRootImpl(root, renderPriorityLevel) {
 
     // The next phase is the mutation phase, where we mutate the host tree.
     nextEffect = firstEffect;
+
+    // 第二个dowhile遍历effectlist链表，执行commitMutationEffects函数
     do {
       try {
         commitMutationEffects(root, renderPriorityLevel);
@@ -2036,12 +2047,15 @@ function commitRootImpl(root, renderPriorityLevel) {
     // the mutation phase, so that the previous tree is still current during
     // componentWillUnmount, but before the layout phase, so that the finished
     // work is current during componentDidMount/Update.
+    // fiber树切换
     root.current = finishedWork;
 
     // The next phase is the layout phase, where we call effects that read
     // the host tree after it's been mutated. The idiomatic use case for this is
     // layout, but class component lifecycles also fire here for legacy reasons.
     nextEffect = firstEffect;
+
+    // 第三个dowhile遍历effectlist链表，执行commitLayoutEffects函数
     do {
       try {
         commitLayoutEffects(root, lanes);
@@ -2189,6 +2203,10 @@ function commitRootImpl(root, renderPriorityLevel) {
   return null;
 }
 
+/**
+ * 1、执行getSnapshotBeforeUpdate
+ * 2、调度useEffect
+ */
 function commitBeforeMutationEffects() {
   while (nextEffect !== null) {
     const current = nextEffect.alternate;
@@ -2213,6 +2231,7 @@ function commitBeforeMutationEffects() {
     }
 
     const flags = nextEffect.flags;
+    // 判断节点上有没有Snapshot副作用
     if ((flags & Snapshot) !== NoFlags) {
       setCurrentDebugFiberInDEV(nextEffect);
 
@@ -2241,16 +2260,18 @@ function commitMutationEffects(
 ) {
   // TODO: Should probably move the bulk of this function to commitWork.
   while (nextEffect !== null) {
-    setCurrentDebugFiberInDEV(nextEffect);
+    setCurrentDebug FiberInDEV(nextEffect);
 
     const flags = nextEffect.flags;
-
+    
+    // 重置文本内容
     if (flags & ContentReset) {
       commitResetTextContent(nextEffect);
     }
-
+    // 存在Ref副作用的话，需要解绑ref
     if (flags & Ref) {
       const current = nextEffect.alternate;
+      // update时，解绑ref
       if (current !== null) {
         commitDetachRef(current);
       }
@@ -2267,6 +2288,7 @@ function commitMutationEffects(
     // updates, and deletions. To avoid needing to add a case for every possible
     // bitmap value, we remove the secondary effects from the effect tag and
     // switch on that value.
+    // 这里根据副作用类型，进行相应的dom操作
     const primaryFlags = flags & (Placement | Update | Deletion | Hydrating);
     switch (primaryFlags) {
       case Placement: {
@@ -2318,6 +2340,10 @@ function commitMutationEffects(
   }
 }
 
+/**
+ * 1、调用commitLayoutEffectOnFiber执行相关生命周期函数或者hook相关callback
+ * 2、执行commitAttachRef为ref赋值
+ */
 function commitLayoutEffects(root: FiberRoot, committedLanes: Lanes) {
   if (enableSchedulingProfiler) {
     markLayoutEffectsStarted(committedLanes);
@@ -2462,7 +2488,10 @@ function flushPassiveEffectsImpl() {
 
   // First pass: Destroy stale passive effects.
   const unmountEffects = pendingPassiveHookEffectsUnmount;
-  pendingPassiveHookEffectsUnmount = [];
+  // 存放useEffect的销毁函数
+  pendingPassiveHookEffectsUnmount = [];  
+
+  // 执行destory
   for (let i = 0; i < unmountEffects.length; i += 2) {
     const effect = ((unmountEffects[i]: any): HookEffect);
     const fiber = ((unmountEffects[i + 1]: any): Fiber);
@@ -2494,6 +2523,7 @@ function flushPassiveEffectsImpl() {
   }
   // Second pass: Create new passive effects.
   const mountEffects = pendingPassiveHookEffectsMount;
+  // 存放useEffect的所有回调
   pendingPassiveHookEffectsMount = [];
   for (let i = 0; i < mountEffects.length; i += 2) {
     const effect = ((mountEffects[i]: any): HookEffect);
@@ -2507,6 +2537,7 @@ function flushPassiveEffectsImpl() {
       ) {
         try {
           startPassiveEffectTimer();
+          // 执行回调create，返回一个销毁函数，挂在effect.destroy上
           effect.destroy = create();
         } finally {
           recordPassiveEffectDuration(fiber);

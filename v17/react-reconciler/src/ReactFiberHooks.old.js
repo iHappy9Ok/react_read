@@ -120,12 +120,15 @@ export type HookType =
 let didWarnAboutMismatchedHooksForComponent;
 let didWarnAboutUseOpaqueIdentifier;
 
+/**
+ * hook数据结构
+ */
 export type Hook = {|
-  memoizedState: any,
-  baseState: any,
-  baseQueue: Update<any, any> | null,
-  queue: UpdateQueue<any, any> | null,
-  next: Hook | null,
+  memoizedState: any, //对于不同hook，有不同的值
+  baseState: any, //初始state
+  baseQueue: Update<any, any> | null, //初始queue队列
+  queue: UpdateQueue<any, any> | null,  //需要更新的update
+  next: Hook | null, //下一个hook
 |};
 
 export type Effect = {|
@@ -244,6 +247,7 @@ export function renderWithHooks<Props, SecondArg>(
   // Non-stateful hooks (e.g. context) don't get added to memoizedState,
   // so memoizedState would be null during updates and mounts.
 
+  // mount和update调用的hook区分开来
   ReactCurrentDispatcher.current =
     current === null || current.memoizedState === null
       ? HooksDispatcherOnMount
@@ -361,7 +365,7 @@ function mountWorkInProgressHook(): Hook {
 
     next: null,
   };
-
+  // 如果调用了多个hook，会形成链表
   if (workInProgressHook === null) {
     // This is the first hook in the list
     currentlyRenderingFiber.memoizedState = workInProgressHook = hook;
@@ -933,6 +937,9 @@ function rerenderState<S>(
   return rerenderReducer(basicStateReducer, (initialState: any));
 }
 
+/**
+ * fiber.updateQueue 添加effect
+ */
 function pushEffect(tag, create, destroy, deps) {
   const effect: Effect = {
     tag,

@@ -257,6 +257,9 @@ function commitHookEffectListUnmount(tag: number, finishedWork: Fiber) {
   }
 }
 
+/**
+ * 执行useLayoutEffect相关的回调函数
+ */
 function commitHookEffectListMount(tag: number, finishedWork: Fiber) {
   const updateQueue: FunctionComponentUpdateQueue | null = (finishedWork.updateQueue: any);
   const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
@@ -273,7 +276,10 @@ function commitHookEffectListMount(tag: number, finishedWork: Fiber) {
     } while (effect !== firstEffect);
   }
 }
-
+/**
+ * 将useEffect的销毁和回调函数push到pendingPassiveHookEffectsUnmount和pendingPassiveHookEffectsMount中
+ * 当commit阶段结束之后调度flushPassiveEffects执行useEffect的回调和销毁函数
+ */
 function schedulePassiveEffects(finishedWork: Fiber) {
   // 获取到函数组件的updateQueue
   const updateQueue: FunctionComponentUpdateQueue | null = (finishedWork.updateQueue: any);
@@ -289,7 +295,7 @@ function schedulePassiveEffects(finishedWork: Fiber) {
         (tag & HookPassive) !== NoHookEffect &&
         (tag & HookHasEffect) !== NoHookEffect
       ) {
-        // 当effect的tag含有HookPassive和HookHasEffect时，菜向数组中push effect
+        // 当effect的tag含有HookPassive和HookHasEffect时，才向数组中push effect
         enqueuePendingPassiveHookEffectUnmount(finishedWork, effect);
         enqueuePendingPassiveHookEffectMount(finishedWork, effect);
       }
@@ -353,6 +359,10 @@ export function commitPassiveEffectDurations(
   }
 }
 
+/**
+ * as commitLayoutEffectOnFiber
+ * 执行相关生命周期函数或者hook相关callback
+ */
 function commitLifeCycles(
   finishedRoot: FiberRoot,
   current: Fiber | null,
@@ -389,6 +399,7 @@ function commitLifeCycles(
     case ClassComponent: {
       const instance = finishedWork.stateNode;
       if (finishedWork.flags & Update) {
+        // 区分mount和update，执行不同的生命周期
         if (current === null) {
           // We could update instance props and state here,
           // but instead we rely on them being set during last render.
@@ -1002,6 +1013,7 @@ function commitPlacement(finishedWork: Fiber): void {
   const before = getHostSibling(finishedWork);
   // We only have the top Fiber that was inserted but we need to recurse down its
   // children to find all the terminal nodes.
+  // 插入分两种情况 insertBefore 和 appendChild
   if (isContainer) {
     insertOrAppendPlacementNodeIntoContainer(finishedWork, before, parent);
   } else {
@@ -1009,6 +1021,9 @@ function commitPlacement(finishedWork: Fiber): void {
   }
 }
 
+/**
+ * 将child和其sibling插入到parent节点下
+ */
 function insertOrAppendPlacementNodeIntoContainer(
   node: Fiber,
   before: ?Instance,

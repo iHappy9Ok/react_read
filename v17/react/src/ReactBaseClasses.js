@@ -60,6 +60,7 @@ Component.prototype.setState = function(partialState, callback) {
     'setState(...): takes an object of state variables to update or a ' +
       'function which returns an object of state variables.',
   );
+  // update是Component上的一个属性，是更新的只要承载结构
   this.updater.enqueueSetState(this, partialState, callback, 'setState');
 };
 

@@ -92,8 +92,8 @@ export function applyDerivedStateFromProps(
 const classComponentUpdater = {
   isMounted,
   enqueueSetState(inst, payload, callback) {
-    const fiber = getInstance(inst);
-    const eventTime = requestEventTime();
+    const fiber = getInstance(inst); //fiber实例
+    const eventTime = requestEventTime();  
     const lane = requestUpdateLane(fiber);
 
     const update = createUpdate(eventTime, lane);
